@@ -1,5 +1,7 @@
 *.py[cod]
-
+api_key
+tmpFile
+*.html
 # C extensions
 *.so
 
