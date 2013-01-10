@@ -8,7 +8,7 @@ The data for this project comes from [data.gov] (https://explore.data.gov/Bankin
 [License] (http://www.gnu.org/licenses/gpl.html)
 
 
-[Example] http://ssebastian.koding.com/googlMaps.html
+[Example] (http://ssebastian.koding.com/googlMaps.html)
 
 
 ## Requirements
