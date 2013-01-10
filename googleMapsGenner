@@ -1,0 +1,50 @@
+#google maps generator
+import json
+import requests
+import csv
+
+url = "https://explore.data.gov/download/pwaj-zn2n/CSV"
+
+def mkReader():
+	r = requests.get(url=url)
+	tmpFile = open("tmpFile", "w")
+	tmpFile.write(r.content)
+	tmpFile.close()
+	reader = csv.reader(open("tmpFile", "r"))	
+	reader.next()
+	reader.next()
+	return reader
+	
+def getLatLong(cityname, state):
+	cityname = cityname.replace(" ", "+")
+	url = "http://maps.googleapis.com/maps/api/geocode/json?address="+cityname+",+"+state+"&sensor=false"
+	print url
+	r = requests.get(url=url)
+	latLong = json.loads(r.content)
+	try:
+		latLong = latLong['results'][0]['geometry']['location']
+		return latLong['lat'], latLong['lng']
+	except:
+		return 0, 0
+	
+	
+api_key = open("api_key", "r").read()
+reader = mkReader()
+f = open("googlMaps.html", "w")
+f.write('<!DOCTYPE html>\n')
+f.write('<html>\n  <head>\n    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />\n')
+f.write('<style type="text/css">      html { height: 100% }      body { height: 100%; margin: 0; padding: 0 }      #map_canvas { height: 100% }    </style>    <script type="text/javascript"      src="https://maps.googleapis.com/maps/api/js?key='+api_key+'&sensor=false">    </script>\n')
+f.write('<script type="text/javascript">function initialize(){var myLatLng = new google.maps.LatLng(39.198205,-95.185547); var mapOptions = {center: myLatLng, zoom: 5, mapTypeId: google.maps.MapTypeId.ROADMAP}; var map = new google.maps.Map(document.getElementById("map_canvas"),mapOptions);\n')
+i=0
+for line in reader:
+	#0 bank name
+	#1 location
+	#2 state
+	#3 CERT #
+	#4 Acquiring Instution
+	#5 Closing Date
+	#6 Updated Date
+	lat, lng = getLatLong(line[1], line[2])
+	f.write("var marker"+str(i)+" = new google.maps.Marker({position: new google.maps.LatLng("+str(lat)+","+str(lng)+", map: map, title: \""+line[0]+" in "+line[1]+", "+line[2]+" closed on: "+line[5]+"\"});\n")
+	i=i+1
+f.write('}</script>\n</head>\n<body onload="initialize()">\n<div id="map_canvas" style="width:100%; height:100%"></div>\n</body>\n</html>')
